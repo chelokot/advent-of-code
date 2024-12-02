@@ -1,7 +1,7 @@
 def sign(x):
     return 1 if x > 0 else 0 if x == 0 else -1
 
-def is_safe(l, problem_dampening=True):
+def is_safe(l, problem_dampening=False):
     direction = None
     for i in range(len(l) - 1):
         a, b = l[i], l[i+1]
