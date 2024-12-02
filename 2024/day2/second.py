@@ -10,13 +10,7 @@ def is_safe(l, problem_dampening=True):
         if not direction:
             direction = current_direction
         if abs(difference) not in [1, 2, 3] or direction != current_direction:
-            if not problem_dampening:
-                return False
-            else:
-                result = is_safe(l[:i-1] + l[i:], False) or is_safe(l[:i] + l[i+1:], False) or is_safe(l[:i+1] + l[i+2:], False)
-                if not result:
-                    print(l, l[:i] + l[i+1:], l[:i+1] + l[i+2:])
-                return result
+            return problem_dampening and (is_safe(l[:i-1] + l[i:], False) or is_safe(l[:i] + l[i+1:], False) or is_safe(l[:i+1] + l[i+2:], False))
     return True
 
 with open("input.txt") as f:
