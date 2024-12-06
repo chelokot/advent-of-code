@@ -1,20 +1,22 @@
 import numpy as np
+import copy
 
 with open("input.txt") as f:
     data = f.read().splitlines()
 
+possible_directions = ['>', 'v', '<', '^']
 class Lab:
     def __init__(self, map):
-        self.possible_driections = ['>', 'v', '<', '^']
         self.map = map
         for i in range(len(self.map)):
             for j in range(len(self.map[i])):
-                if self.map[i][j] in self.possible_driections:
+                if self.map[i][j] in possible_directions:
                     self.position = (i, j)
                     self.direction = self.map[i][j]
                     break
         self.visited_positions = set()
         self.finished = False
+        self.loop = False
 
     def is_leaving_area(self):
         i, j = self.position
@@ -58,20 +60,21 @@ class Lab:
             current_state = (self.position, self.direction)
             if current_state in self.visited_positions:
                 self.finished = True
+                self.loop = True
                 return
             self.visited_positions.add((self.position, self.direction))
             self.map[next_i][next_j] = self.direction
             self.map[i][j] = 'X'
             self.position = (next_i, next_j)
         else:
-            self.direction = self.possible_driections[(self.possible_driections.index(self.direction) + 1) % 4]
+            self.direction = possible_directions[(possible_directions.index(self.direction) + 1) % 4]
             self.map[i][j] = self.direction
 
     def count_visited(self):
         count = 0
         for i in range(len(self.map)):
             for j in range(len(self.map[i])):
-                if self.map[i][j] in self.possible_driections + ['X']:
+                if self.map[i][j] in possible_directions + ['X']:
                     count += 1
         return count
 
@@ -80,5 +83,16 @@ class Lab:
             self.step()
         return self.count_visited()
 
-lab = Lab([list(line) for line in data])
-print(lab.process())
+initial_map = [list(line) for line in data]
+possible_new_obstacles_count = 0
+for i in range(len(initial_map)):
+    for j in range(len(initial_map[i])):
+        if initial_map[i][j] in possible_directions + ['#']:
+            continue
+        attempt_map = copy.deepcopy(initial_map)
+        attempt_map[i][j] = '#'
+        lab = Lab(attempt_map)
+        lab.process()
+        if lab.loop:
+            possible_new_obstacles_count += 1
+print(possible_new_obstacles_count)
