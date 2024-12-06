@@ -97,7 +97,6 @@ for i in range(len(test_lab.map)):
 
 possible_new_obstacles_count = 0
 for (i, j) in tqdm(possible_obstacle_positions):
-    print(i, j)
     if initial_map[i][j] in possible_directions + ['#']:
         continue
     attempt_map = copy.deepcopy(initial_map)
