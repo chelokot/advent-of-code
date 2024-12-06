@@ -52,8 +52,8 @@ class Lab:
         if self.is_leaving_area():
             self.finished = True
             return
+        i, j = self.position
         if self.is_path_free():
-            i, j = self.position
             next_i, next_j = self.next_position()
             current_state = (self.position, self.direction)
             if current_state in self.visited_positions:
@@ -62,8 +62,10 @@ class Lab:
             self.visited_positions.add((self.position, self.direction))
             self.map[next_i][next_j] = self.direction
             self.map[i][j] = 'X'
+            self.position = (next_i, next_j)
         else:
             self.direction = self.possible_driections[(self.possible_driections.index(self.direction) + 1) % 4]
+            self.map[i][j] = self.direction
 
     def count_visited(self):
         count = 0
@@ -79,4 +81,6 @@ class Lab:
         return self.count_visited()
 
 lab = Lab([list(line) for line in data])
+# print('\n'.join(map(lambda x: ''.join(x), lab.map)))
 print(lab.process())
+# print('\n'.join(map(lambda x: ''.join(x), lab.map)))
