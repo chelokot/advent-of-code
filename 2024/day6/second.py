@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+from tqdm import tqdm
 
 with open("input.txt") as f:
     data = f.read().splitlines()
@@ -84,15 +85,25 @@ class Lab:
         return self.count_visited()
 
 initial_map = [list(line) for line in data]
+test_initial_map = copy.deepcopy(initial_map)
+test_lab = Lab(test_initial_map)
+test_lab.process()
+# it only does make sense to put obstacle somewhere at the original route
+possible_obstacle_positions = set()
+for i in range(len(test_lab.map)):
+    for j in range(len(test_lab.map[i])):
+        if test_lab.map[i][j] in possible_directions + ['X']:
+            possible_obstacle_positions.add((i, j))
+
 possible_new_obstacles_count = 0
-for i in range(len(initial_map)):
-    for j in range(len(initial_map[i])):
-        if initial_map[i][j] in possible_directions + ['#']:
-            continue
-        attempt_map = copy.deepcopy(initial_map)
-        attempt_map[i][j] = '#'
-        lab = Lab(attempt_map)
-        lab.process()
-        if lab.loop:
-            possible_new_obstacles_count += 1
+for (i, j) in tqdm(possible_obstacle_positions):
+    print(i, j)
+    if initial_map[i][j] in possible_directions + ['#']:
+        continue
+    attempt_map = copy.deepcopy(initial_map)
+    attempt_map[i][j] = '#'
+    lab = Lab(attempt_map)
+    lab.process()
+    if lab.loop:
+        possible_new_obstacles_count += 1
 print(possible_new_obstacles_count)
