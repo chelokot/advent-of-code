@@ -2,6 +2,7 @@ with open("input.txt") as f:
     data = f.read().splitlines()
 from operator import invert
 
+from webbrowser import Opera
 from dataclasses import dataclass
 from typing import Callable
 
@@ -24,7 +25,13 @@ OPERATORS = [
         operation=lambda x, y: x * y,
         inverse=lambda x, y: x // y,
         can_apply=lambda x, y: x % y == 0
-    )
+    ),
+    Operator(
+        symbol='||',
+        operation=lambda x, y: int(str(x) + str(y)), # concatenation
+        inverse=lambda x, y: int(str(x)[:-len(str(y))]), # removing last y digits
+        can_apply=lambda x, y: str(x)[-len(str(y)):] == str(y)
+    ),
 ]
 
 def ways_to_be_true(value, terms):
