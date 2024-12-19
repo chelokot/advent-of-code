@@ -72,12 +72,12 @@ class CPU:
         self.output.append(operand % 8)
 
     def execute(self):
-        global iii
         while self.instruction_pointer < len(self.instructions):
             self.execute_next_command()
             self.instruction_pointer += 2
         return self.output
 
-cpu = CPU(A, B, C, instructions)
-output = cpu.execute()
-print(','.join(map(str, output)))
+if __name__ == "__main__":
+    cpu = CPU(A, B, C, instructions)
+    output = cpu.execute()
+    print(','.join(map(str, output)))
