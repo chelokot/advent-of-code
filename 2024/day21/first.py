@@ -74,8 +74,6 @@ for code in codes:
     second_instruction = first_directional_pad.get_full_instruction(first_instruction)
     third_instruction = second_directional_pad.get_full_instruction(second_instruction)
 
-    print(first_instruction)
-    print(second_instruction)
     print(third_instruction)
 
     total_complexity += len(third_instruction) * int(code[:-1])
