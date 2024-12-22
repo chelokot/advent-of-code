@@ -20,4 +20,5 @@ for buyer in buyers:
         buyer = next_secret(buyer)
     print(buyer)
     count += buyer
+print()
 print(count)
