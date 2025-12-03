@@ -11,4 +11,4 @@ def findBestNDigitSubsuqeunce(sequence: str, n: int) -> list[str]:
 def findBiggestNNumber(bank: str, n: int) -> int:
     return int("".join(findBestNDigitSubsuqeunce(bank, n)))
 
-print(sum(findBiggestNNumber(bank, 2) for bank in banks))
+print(sum(findBiggestNNumber(bank, 12) for bank in banks))
