@@ -56,36 +56,38 @@ initial_time = time.time()
 
 maxArea = 0
 checkedRectangles = list()
-for i in range(len(points)):
-    for j in range(i+1, len(points)):
-        pointA, pointB = points[i], points[j]
-        minX, minY, maxX, maxY = minXminYmaxXmaxY(pointA, pointB)
-        area = rectangleArea(pointA, pointB)
-        print(pointA, pointB, i, j, len(points), int(time.time() - initial_time), area, maxArea)
-        if area <= maxArea:
-            continue
-        hasEmpty = False
-        for k in sorted(list(range(len(points))), key = lambda k: min(abs(i - k), abs(j - k))):
-            prevBreakCandidatePoint = points[k - 1]
-            currBreakCandidatePoint = points[k]
-            minBreakX, minBreakY, maxBreakX, maxBreakY = minXminYmaxXmaxY(prevBreakCandidatePoint, currBreakCandidatePoint)
-            if (minBreakX >= maxX or maxBreakX <= minX or minBreakY >= maxY or maxBreakY <= minY):
-                continue
-            breakLine = linePoints(prevBreakCandidatePoint, currBreakCandidatePoint)
-            for breakPoint in breakLine:
-                if (
-                       (breakPoint[0] < maxX and breakPoint[0] > minX and breakPoint[1] < maxY and breakPoint[1] > minY) and isEdge[breakPoint]
-                    or (breakPoint[0] in [minX, maxX] and breakPoint[1] < maxY and breakPoint[1] > minY) and isEdge[breakPoint] == 'horizontal'
-                    or (breakPoint[1] in [minY, maxY] and breakPoint[0] < maxX and breakPoint[1] > minX) and isEdge[breakPoint] == 'vertical'
-                ):
-                    hasEmpty = True
-                    break
-            if hasEmpty:
-                break
+candidatePointsIndices = list(range(len(points)))
 
-        if not hasEmpty:
-            maxArea = area
-            checkedRectangles.append((minX, minY, maxX, maxY))
+pairs = sorted([(i, j) for i in range(len(points)) for j in range(i+1, len(points))], key = lambda X: -rectangleArea(points[X[0]], points[X[1]]))
+for (i, j) in pairs:
+    pointA, pointB = points[i], points[j]
+    minX, minY, maxX, maxY = minXminYmaxXmaxY(pointA, pointB)
+    area = rectangleArea(pointA, pointB)
+    print(pointA, pointB, i, j, len(points), int(time.time() - initial_time), area, maxArea)
+    hasEmpty = False
+    candidatePointsIndices.sort(key = lambda k: min(abs(i - k), abs(j - k)))
+    for k in candidatePointsIndices:
+        prevBreakCandidatePoint = points[k - 1]
+        currBreakCandidatePoint = points[k]
+        minBreakX, minBreakY, maxBreakX, maxBreakY = minXminYmaxXmaxY(prevBreakCandidatePoint, currBreakCandidatePoint)
+        if (minBreakX >= maxX or maxBreakX <= minX or minBreakY >= maxY or maxBreakY <= minY):
+            continue
+        breakLine = linePoints(prevBreakCandidatePoint, currBreakCandidatePoint)
+        for breakPoint in breakLine:
+            if (
+                    (breakPoint[0] < maxX and breakPoint[0] > minX and breakPoint[1] < maxY and breakPoint[1] > minY) and isEdge[breakPoint]
+                or (breakPoint[0] in [minX, maxX] and breakPoint[1] < maxY and breakPoint[1] > minY) and isEdge[breakPoint] == 'horizontal'
+                or (breakPoint[1] in [minY, maxY] and breakPoint[0] < maxX and breakPoint[1] > minX) and isEdge[breakPoint] == 'vertical'
+            ):
+                hasEmpty = True
+                break
+        if hasEmpty:
+            break
+
+    if not hasEmpty:
+        maxArea = area
+        checkedRectangles.append((minX, minY, maxX, maxY))
+        break
             
 print(maxArea)
 
