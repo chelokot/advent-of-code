@@ -12,7 +12,10 @@ def minXminYmaxXmaxY(pointA: tuple[int, int], pointB: tuple[int, int]) -> tuple[
 
 def linePoints(pointA: tuple[int, int], pointB: tuple[int, int]) -> list[tuple[int, int]]:
     minX, minY, maxX, maxY = minXminYmaxXmaxY(pointA, pointB)
-    return list(product(range(minX, maxX + 1), range(minY, maxY + 1)))
+    if minX == minY:
+        return [(minX, y) for y in range(minY, maxY + 1)]
+    else:
+        return [(x, minY) for x in range(minX, maxX + 1)]
 
 def rectangleArea(pointA: tuple[int, int], pointB: tuple[int, int]) -> int:
     minX, minY, maxX, maxY = minXminYmaxXmaxY(pointA, pointB)
@@ -28,10 +31,10 @@ for p in range(2): # on first path we don't have all corners set
         prevPoint, curPoint = points[i-1], points[i]
         line = linePoints(prevPoint, curPoint)
         for point in line[1:-1]:
-            if prevPoint[0] == curPoint[0]: # horizontal line
+            if prevPoint[0] == curPoint[0]:
                 isEdge[point] = 'vertical'
                 neighbours = [ (point[0] - 1, point[1]) , (point[0] + 1, point[1]) ]
-            if prevPoint[1] == curPoint[1]: #   vertical line
+            if prevPoint[1] == curPoint[1]:
                 isEdge[point] = 'horizontal'
                 neighbours = [ (point[0], point[1] - 1) , (point[0], point[1] + 1) ]
                 
@@ -48,24 +51,11 @@ for p in range(2): # on first path we don't have all corners set
         isCorner[prevPoint] = True
         isCorner[curPoint] = True
 
-# # Print grid
-# maxX, maxY = max(points, key=lambda x: x[0])[0], max(points, key=lambda x: x[1])[1]
-# for y in range(maxY + 1):
-#     for x in range(maxX + 1):
-#         if isEdge[x, y] == 'horizontal':
-#             print('H', end='')
-#         elif isEdge[x, y] == 'vertical':
-#             print('V', end='')
-#         elif isCorner[x, y]:
-#             print('#', end='')
-#         else:
-#             print('.', end='')
-#     print()
-
 import time
 initial_time = time.time()
 
 maxArea = 0
+checkedRectangles = list()
 for i in range(len(points)):
     for j in range(i+1, len(points)):
         pointA, pointB = points[i], points[j]
@@ -75,11 +65,11 @@ for i in range(len(points)):
         if area <= maxArea:
             continue
         hasEmpty = False
-        for k in range(len(points)):
-            prevBreakCandidatePoint = points[k-1]
+        for k in sorted(list(range(len(points))), key = lambda k: min(abs(i - k), abs(j - k))):
+            prevBreakCandidatePoint = points[k - 1]
             currBreakCandidatePoint = points[k]
             minBreakX, minBreakY, maxBreakX, maxBreakY = minXminYmaxXmaxY(prevBreakCandidatePoint, currBreakCandidatePoint)
-            if (minBreakX > maxX or maxBreakX < minX or minBreakY > maxY or maxBreakY < minY):
+            if (minBreakX >= maxX or maxBreakX <= minX or minBreakY >= maxY or maxBreakY <= minY):
                 continue
             breakLine = linePoints(prevBreakCandidatePoint, currBreakCandidatePoint)
             for breakPoint in breakLine:
@@ -95,5 +85,13 @@ for i in range(len(points)):
 
         if not hasEmpty:
             maxArea = area
+            checkedRectangles.append((minX, minY, maxX, maxY))
             
 print(maxArea)
+
+# Запустить с профилировщиком и отсортировать таблицу по "общему времени" (tottime):
+# python -m cProfile -s tottime your_script.py
+#
+# Либо сохранить профиль и потом смотреть в pstats:
+# python -m cProfile -o profile.out your_script.py
+# python -m pstats profile.out -c "sort tottime" -c "stats 30"
