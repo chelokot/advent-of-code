@@ -13,9 +13,9 @@ def minXminYmaxXmaxY(pointA: tuple[int, int], pointB: tuple[int, int]) -> tuple[
 def linePoints(pointA: tuple[int, int], pointB: tuple[int, int]) -> list[tuple[int, int]]:
     minX, minY, maxX, maxY = minXminYmaxXmaxY(pointA, pointB)
     if minX == minY:
-        return [(minX, y) for y in range(minY, maxY + 1)]
+        return ((minX, y) for y in range(minY + 1, maxY))
     else:
-        return [(x, minY) for x in range(minX, maxX + 1)]
+        return ((x, minY) for x in range(minX + 1, maxX))
 
 def rectangleArea(pointA: tuple[int, int], pointB: tuple[int, int]) -> int:
     minX, minY, maxX, maxY = minXminYmaxXmaxY(pointA, pointB)
@@ -30,7 +30,7 @@ for p in range(2): # on first path we don't have all corners set
     for i in range(len(points)):
         prevPoint, curPoint = points[i-1], points[i]
         line = linePoints(prevPoint, curPoint)
-        for point in line[1:-1]:
+        for point in line:
             if prevPoint[0] == curPoint[0]:
                 isEdge[point] = 'vertical'
                 neighbours = [ (point[0] - 1, point[1]) , (point[0] + 1, point[1]) ]
