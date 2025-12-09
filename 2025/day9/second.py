@@ -1,10 +1,12 @@
+import time
+initial_time = time.time()
+
 with open("input.txt") as f:
     points = list(map(
         lambda line: tuple(map(int, line.split(","))), 
         f.read().splitlines()
     ))
 
-from itertools import product
 def minXminYmaxXmaxY(pointA: tuple[int, int], pointB: tuple[int, int]) -> tuple[int, int, int, int]:
     minX, maxX = min([pointA[0], pointB[0]]), max([pointA[0], pointB[0]])
     minY, maxY = min([pointA[1], pointB[1]]), max([pointA[1], pointB[1]])
@@ -51,19 +53,14 @@ for p in range(2): # on first path we don't have all corners set
         isCorner[prevPoint] = True
         isCorner[curPoint] = True
 
-import time
-initial_time = time.time()
-
-maxArea = 0
-checkedRectangles = list()
 candidatePointsIndices = list(range(len(points)))
-
 pairs = sorted([(i, j) for i in range(len(points)) for j in range(i+1, len(points))], key = lambda X: -rectangleArea(points[X[0]], points[X[1]]))
+
 for (i, j) in pairs:
     pointA, pointB = points[i], points[j]
     minX, minY, maxX, maxY = minXminYmaxXmaxY(pointA, pointB)
     area = rectangleArea(pointA, pointB)
-    print(pointA, pointB, i, j, len(points), int(time.time() - initial_time), area, maxArea)
+    print(pointA, pointB, i, j, len(points), int(time.time() - initial_time), area)
     hasEmpty = False
     candidatePointsIndices.sort(key = lambda k: min(abs(i - k), abs(j - k)))
     for k in candidatePointsIndices:
@@ -86,14 +83,6 @@ for (i, j) in pairs:
 
     if not hasEmpty:
         maxArea = area
-        checkedRectangles.append((minX, minY, maxX, maxY))
         break
             
-print(maxArea)
-
-# Запустить с профилировщиком и отсортировать таблицу по "общему времени" (tottime):
-# python -m cProfile -s tottime your_script.py
-#
-# Либо сохранить профиль и потом смотреть в pstats:
-# python -m cProfile -o profile.out your_script.py
-# python -m pstats profile.out -c "sort tottime" -c "stats 30"
+print(area)
