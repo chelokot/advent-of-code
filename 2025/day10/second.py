@@ -1,4 +1,3 @@
-from itertools import product
 from dataclasses import dataclass
 @dataclass
 class Task:
@@ -18,8 +17,8 @@ class Equation:
         return self.__mul__(scalar)
 
 
-def getFirstNonNull(equation: Equation) -> tuple[int, float]:
-    for i, coeff in enumerate(equation.coeffs):
+def getFirstNonNull(coeffs: list[float]) -> tuple[int, float]:
+    for i, coeff in enumerate(coeffs):
         if abs(coeff) > 1e-12:
             return i, coeff 
     return -1, float('inf')
@@ -30,25 +29,30 @@ class EquationSystem:
     
     def isSolvable(self):
         byFirstDigit = {}
+        freeI = len(self.equations[0].coeffs) - 1
         for newEquation in self.equations:
+            prevI = -1
             while True:
-                i, coeff = getFirstNonNull(newEquation)
+                i, coeff = getFirstNonNull(newEquation.coeffs[prevI + 1:])
                 if i == -1:
                     break
+                i = prevI + 1 + i
                 newEquation = newEquation * (1 / coeff)
                 if i not in byFirstDigit:
                     byFirstDigit[i] = newEquation
                     break
                 else:
                     newEquation = newEquation - byFirstDigit[i]
-        return len(self.equations[0].coeffs) - 1 not in byFirstDigit
+                if i == freeI:
+                    return False
+                prevI = i
+        self.equations = byFirstDigit.values()
+        return True
         
 def taskToEquationSystem(task: Task) -> EquationSystem:
-    # assuming only good buttons
     equationSystem = EquationSystem([])
     for i in range(len(task.voltages)):
         if task.voltages[i] > 0:
-            # print(i, task.voltages[i], task.buttons)
             equationSystem.equations.append(Equation([1 if i in button else 0 for button in task.buttons] + [task.voltages[i]]))
     return equationSystem
 
@@ -62,28 +66,16 @@ with open("input.txt") as f:
         tasks.append(Task(list(map(lambda s: list(map(int, s[1:-1].split(','))),line.split()[1:-1])), list(map(int, line.split()[-1][1:-1].split(",")))))
 
 def findMinimumCombination(task: Task, limit: int) -> int:
-    # print(task, limit)
     result = float('inf')
     if limit == 1:
         return result
         
     oldButtons = task.buttons
     task.buttons = [button for button in oldButtons if all(task.voltages[i] != 0 for i in button)]
-    
-    # shouldBeSolvable = True
-    
     for button in sorted(task.buttons, key = lambda x: -len(x)):
         if len(task.buttons) != 0:
-            if len(max(task.buttons, key=len)) * (min(limit, result) - 1) < sum(task.voltages):
+            if not isTaskSolvableInFloat(task) or len(max(task.buttons, key=len)) * (min(limit, result) - 1) < sum(task.voltages):
                 break
-            elif not set.union(*[set(button) for button in task.buttons]).issuperset(set([i for i in range(len(task.voltages)) if task.voltages[i] > 0])):
-                break
-            elif not isTaskSolvableInFloat(task):
-                # print(task, taskToEquationSystem(task))
-                # shouldBeSolvable = False
-                # equationSystem = taskToEquationSystem(task)
-                break
-                # task.buttons.remove(button)
             else:
                 task.buttons.remove(button)
         fullButtonCount = min(task.voltages[i] for i in button)
@@ -94,11 +86,7 @@ def findMinimumCombination(task: Task, limit: int) -> int:
             else:
                 result = min(result, buttonCount + findMinimumCombination(task, min(limit, result) - buttonCount))
             for i in button: task.voltages[i] += buttonCount
-        # if result != float('inf') and not shouldBeSolvable:
-        #     print(button, task, equationSystem)
-        #     print(1/0)
     task.buttons = oldButtons
-    # print("go up")
     return result
 
 total = 0
@@ -108,6 +96,3 @@ for i, task in enumerate(tasks):
     print(result)
     total += result
 print(total)
-        
-        
-            
